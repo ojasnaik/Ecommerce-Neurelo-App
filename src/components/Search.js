@@ -11,11 +11,14 @@ function Search({ onSearchResult, categories, resetSearch }) {
   }, [selectedCategory]);
 
   const handleSearch = async () => {
-    const response = await fetch(
-      `https://dummyjson.com/products/search?q=${searchTerm}`
-    );
+    const response = await fetch(`https://us-west-2.aws.neurelo.com/custom/search?input=${searchTerm}`, {
+      method: "GET",
+      headers: {
+        "X-API-KEY": `${process.env.REACT_APP_API_KEY}`,
+      },
+    });
     const data = await response.json();
-    onSearchResult(data.products);
+    onSearchResult(data.data.cursor.firstBatch);
   };
 
   const handleCategorySearch = async (category) => {
