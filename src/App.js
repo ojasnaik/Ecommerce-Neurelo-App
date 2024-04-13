@@ -13,6 +13,7 @@ function App() {
 
   useEffect(() => {
     fetchProducts();
+    fetchCart();
   }, []);
 
   const fetchProducts = async () => {
@@ -40,6 +41,61 @@ function App() {
     const extractedCategories = categoriesJsonResponse.data.values
   
     setCategories(extractedCategories);
+  };
+  
+  const fetchCart = async () => {
+    try {
+      const response = await fetch('https://us-west-2.aws.neurelo.com/rest/cartProduct?', {
+        method: 'GET',
+        headers: {
+          'X-API-KEY': process.env.REACT_APP_CART_API_KEY,
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch cart.');
+      const cartData = await response.json();
+      setCart(cartData.data.map(item => ({
+        id: item.id,
+        price: item.price,
+        quantity: item.quantity,
+        thumbnail: item.thumbnail,
+        title: item.title
+      })));
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  const saveCart = async (cart) => {
+    try {
+      // Clear the existing cart
+      const deleteResponse = await fetch('https://us-west-2.aws.neurelo.com/rest/cartProduct', {
+        method: 'DELETE',
+        headers: {
+          'X-API-KEY': process.env.REACT_APP_CART_API_KEY,
+        }
+      });
+      if (!deleteResponse.ok) throw new Error('Failed to clear the cart.');
+  
+      // Save the updated cart
+      const saveResponse = await fetch('https://us-west-2.aws.neurelo.com/rest/cartProduct', {
+        method: 'POST',
+        headers: {
+          'X-API-KEY': process.env.REACT_APP_CART_API_KEY,
+        },
+        body: JSON.stringify(cart.map((product) => ({
+          id: product.id,
+          price: product.price,
+          quantity: product.quantity,
+          thumbnail: product.thumbnail,
+          title: product.title
+        })))
+      });
+      if (!saveResponse.ok) throw new Error('Failed to save the cart.');
+  
+      console.log('Cart updated successfully!');
+    } catch (error) {
+      console.error(error.message);
+    }
   };
   
 
@@ -113,6 +169,7 @@ function App() {
           updateProductInCart={updateProductInCart}
           removeProductFromCart={removeProductFromCart}
           setIsCartVisible={setIsCartVisible}
+          saveCart={saveCart}
         />
       )}
     </div>

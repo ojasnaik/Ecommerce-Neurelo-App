@@ -5,6 +5,7 @@ function Cart({
   updateProductInCart,
   removeProductFromCart,
   setIsCartVisible,
+  saveCart,
 }) {
   const handleQuantityChange = (product, increment) => {
     let newQuantity = product.quantity + increment;
@@ -87,6 +88,12 @@ function Cart({
             Your cart is empty.
           </p>
         )}
+        <button
+          onClick={() => saveCart(cart)}
+          className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Save Cart
+        </button>
       </div>
     </div>
   );
